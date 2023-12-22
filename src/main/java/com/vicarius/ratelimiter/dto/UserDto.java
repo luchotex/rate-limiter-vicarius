@@ -16,4 +16,7 @@ public class UserDto {
     @Getter
     @Setter
     private String lastName;
+    @Getter
+    @Setter
+    private Boolean disabled;
 }

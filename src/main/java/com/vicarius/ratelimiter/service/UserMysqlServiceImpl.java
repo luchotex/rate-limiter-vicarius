@@ -43,7 +43,7 @@ public class UserMysqlServiceImpl implements UserService {
     @Override
     public UserDto delete(UUID id) {
         User userToDelete = userRepository.findById(id).orElseThrow(() -> new UserException("User not Found"));
-        userToDelete.setDisabled(false);
+        userToDelete.setDisabled(true);
         userRepository.save(userToDelete);
 
         return userMapper.toUserDto(userToDelete);
