@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/user")
 @Slf4j
@@ -20,7 +22,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<UserDto> getById(@PathVariable String id) {
+    public ResponseEntity<UserDto> getById(@PathVariable UUID id) {
         final UserDto userDto = userService.getById(id);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }

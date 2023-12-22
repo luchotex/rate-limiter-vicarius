@@ -8,31 +8,44 @@ import com.vicarius.ratelimiter.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 
 @RequiredArgsConstructor
 @Service
-public class UserMysqlServiceImpl implements UserService{
+public class UserMysqlServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @Override
-    public UserDto getById(String id) {
-        User user = userRepository.findById(id).orElseThrow(() -> new UserException("User not found"));
+    public UserDto getById(UUID id) {
+        User user = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserException("User not found"));
         return userMapper.toUserDto(user);
     }
 
     @Override
     public UserDto save(UserDto userDto) {
-        return null;
+        User userToSave = userMapper.toUser(userDto);
+        User userSaved = userRepository.save(userToSave);
+
+        return userMapper.toUserDto(userSaved);
     }
 
     @Override
-    public UserDto update(String id, UserDto userDto) {
-        return null;
+    public UserDto update(UUID id, UserDto userDto) {
+        User userToUpdate = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserException("User not found"));
+        userToUpdate = userMapper.toUser(userDto);
+        userRepository.save(userToUpdate);
+
+        return userMapper.toUserDto(userToUpdate);
     }
 
     @Override
-    public UserDto delete(String id) {
-        return null;
+    public UserDto delete(UUID id) {
+        User userToDelete = userRepository.findById(id).orElseThrow(() -> new UserException("User not Found"));
+        userToDelete.setDisabled(false);
+        userRepository.save(userToDelete);
+
+        return userMapper.toUserDto(userToDelete);
     }
 }
