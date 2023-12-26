@@ -16,7 +16,7 @@ import java.util.UUID;
 @Service
 public class UserMysqlServiceImpl implements UserService {
 
-    @Value("vicarius.max-quota")
+    @Value("${vicarius.max-quota}")
     private Integer maxQuota;
     public static final String NAME ="UserMysqlServiceImpl";
 
