@@ -22,7 +22,7 @@ public class SchedulerLoader {
 
     private final UserRepository userRepository;
 
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(fixedRateString = "${vicarius.scheduled-fixed-rate}")
     public void updateQuotaLimiters() {
         log.info("Started updating quota limiter");
         Set<Map.Entry<String, QuotaLimiter>> entries = UserLoader.counterMap.entrySet();

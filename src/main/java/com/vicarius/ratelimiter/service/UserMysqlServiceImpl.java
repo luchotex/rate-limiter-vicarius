@@ -19,11 +19,10 @@ import java.util.concurrent.locks.ReentrantLock;
 @Service
 @Slf4j
 public class UserMysqlServiceImpl implements UserService {
+    public static final String NAME = "UserMysqlServiceImpl";
 
     @Value("${vicarius.max-quota}")
     private Integer maxQuota;
-    public static final String NAME = "UserMysqlServiceImpl";
-
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
