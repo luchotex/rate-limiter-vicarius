@@ -1,6 +1,7 @@
 package com.vicarius.ratelimiter.service;
 
 import com.vicarius.ratelimiter.dto.UserDto;
+import com.vicarius.ratelimiter.dto.UserQuotaDto;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -42,6 +43,20 @@ public class CustomMapDynamicAutowireService {
         UserService userService = getService();
 
         return userService.delete(id);
+    }
+
+    public UserQuotaDto consumeQuota(UUID id) {
+        UserService userService = getService();
+
+        return userService.consumeQuota(id);
+
+    }
+
+    public List<UserQuotaDto> getUsersQuota() {
+        UserService userService = getService();
+
+        return userService.getUsersQuota();
+
     }
 
     private UserService getService() {
