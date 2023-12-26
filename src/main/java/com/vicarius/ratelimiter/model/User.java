@@ -1,18 +1,24 @@
 package com.vicarius.ratelimiter.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 public class User {
     @Getter
     @Setter
     @Id
-    private String id;
+    @GeneratedValue(generator = "uuid-hibernate-generator")
+    @GenericGenerator(name = "uuid-hibernate-generator", strategy = "org.hibernate.id.UUIDGenerator")
+    @Type(type = "uuid-char")
+    @Column(name = "id", nullable = false, columnDefinition = "uuid")
+    private UUID id;
     @Getter
     @Setter
     private String firstName;
@@ -22,4 +28,7 @@ public class User {
     @Getter
     @Setter
     private LocalDateTime lastLoginUtc;
+    @Getter
+    @Setter
+    private boolean disabled = Boolean.FALSE;
 }

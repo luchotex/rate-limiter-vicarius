@@ -3,5 +3,9 @@ package com.vicarius.ratelimiter.repository;
 import com.vicarius.ratelimiter.model.User;
 import org.springframework.data.repository.CrudRepository;
 
-public interface UserRepository extends CrudRepository<User, String> {
+import java.util.Optional;
+import java.util.UUID;
+
+public interface UserRepository extends CrudRepository<User, UUID> {
+    Optional<User> findByIdAndDisabled(UUID id, boolean disabled);
 }
