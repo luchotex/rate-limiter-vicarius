@@ -13,4 +13,6 @@ public interface UserService {
     UserDto update(UUID id, UserDto userDto);
 
     UserDto delete(UUID id);
+
+    String getName();
 }

@@ -14,6 +14,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 public class UserMysqlServiceImpl implements UserService {
+    public static final String NAME ="UserMysqlServiceImpl";
+
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
@@ -47,5 +49,10 @@ public class UserMysqlServiceImpl implements UserService {
         userRepository.save(userToDelete);
 
         return userMapper.toUserDto(userToDelete);
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 }
