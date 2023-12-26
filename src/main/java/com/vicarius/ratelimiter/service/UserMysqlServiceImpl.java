@@ -55,7 +55,15 @@ public class UserMysqlServiceImpl implements UserService {
     @Override
     public UserDto update(UUID id, UserDto userDto) {
         User userToUpdate = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserNotFoundException("User not found"));
+        User userBeforeUpdating = null;
+        try {
+            userBeforeUpdating = (User) userToUpdate.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new IllegalArgumentException("Error on cloning");
+        }
         userToUpdate = userMapper.toUser(userDto);
+        userToUpdate.setQuotaNumber(userBeforeUpdating.getQuotaNumber());
+        userToUpdate.setLastLoginUtc(userBeforeUpdating.getLastLoginUtc());
         User userUpdated = userRepository.save(userToUpdate);
 
         log.info("Updated userId {} with quota number {}", userUpdated.getId(), userUpdated.getQuotaNumber());
@@ -65,7 +73,7 @@ public class UserMysqlServiceImpl implements UserService {
 
     @Override
     public UserDto delete(UUID id) {
-        User userToDelete = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not Found"));
+        User userToDelete = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserNotFoundException("User not found"));
         userToDelete.setDisabled(true);
         userRepository.save(userToDelete);
 
@@ -111,7 +119,7 @@ public class UserMysqlServiceImpl implements UserService {
         try {
             reentrantLock.lock();
             Set<Map.Entry<String, QuotaLimiter>> entries = UserLoader.counterMap.entrySet();
-            for (Map.Entry<String, QuotaLimiter> entry: entries) {
+            for (Map.Entry<String, QuotaLimiter> entry : entries) {
                 String userId = entry.getKey();
                 QuotaLimiter quotaLimiter = entry.getValue();
                 User user = userRepository.findByIdAndDisabled(UUID.fromString(userId), false).orElseThrow();
