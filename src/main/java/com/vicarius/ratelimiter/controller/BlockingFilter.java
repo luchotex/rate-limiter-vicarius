@@ -7,14 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Component
@@ -34,8 +32,14 @@ public class BlockingFilter extends OncePerRequestFilter {
         String userId = retrieveUserId(url);
         String method = request.getMethod();
 
+        QuotaLimiter quotaLimiter;
 
-        QuotaLimiter quotaLimiter = UserLoader.counterMap.get(userId);
+        try {
+            UserLoader.reentrantLock.lock();
+            quotaLimiter = UserLoader.counterMap.get(userId);
+        } finally {
+            UserLoader.reentrantLock.unlock();
+        }
 
         boolean containsFreedApi = false;
 

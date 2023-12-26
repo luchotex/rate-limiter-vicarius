@@ -18,8 +18,8 @@ import java.time.LocalDateTime;
 public class ErrorHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<Object> authenticationException(Exception ex) {
-        return new ResponseEntity<Object>(null, HttpStatus.NOT_FOUND);
+    public ResponseEntity<Object> userNotFoundException(Exception ex) {
+        return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(Exception.class)

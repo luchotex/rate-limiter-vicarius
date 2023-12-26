@@ -1,6 +1,7 @@
 package com.vicarius.ratelimiter.controller;
 
 import com.vicarius.ratelimiter.dto.UserDto;
+import com.vicarius.ratelimiter.dto.UserQuotaDto;
 import com.vicarius.ratelimiter.service.CustomMapDynamicAutowireService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -39,5 +41,17 @@ public class UserController {
     public ResponseEntity<UserDto> delete(@PathVariable UUID id) {
         final UserDto userDto = customMapDynamicAutowireService.delete(id);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
+    }
+    @GetMapping(path = "/{id}/quota")
+    public ResponseEntity<UserQuotaDto> consumeQuota(@PathVariable UUID id) {
+        final UserQuotaDto userQuotaDto = customMapDynamicAutowireService.consumeQuota(id);
+        return new ResponseEntity<>(userQuotaDto, HttpStatus.OK);
+    }
+
+
+    @GetMapping(path = "/quotas")
+    public ResponseEntity<List<UserQuotaDto>> getUsersQuota() {
+        final List<UserQuotaDto> userQuotaDtoList = customMapDynamicAutowireService.getUsersQuota();
+        return new ResponseEntity<>(userQuotaDtoList, HttpStatus.OK);
     }
 }

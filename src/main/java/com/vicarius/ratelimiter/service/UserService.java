@@ -1,7 +1,9 @@
 package com.vicarius.ratelimiter.service;
 
 import com.vicarius.ratelimiter.dto.UserDto;
+import com.vicarius.ratelimiter.dto.UserQuotaDto;
 
+import java.util.List;
 import java.util.UUID;
 
 public interface UserService {
@@ -15,4 +17,8 @@ public interface UserService {
     UserDto delete(UUID id);
 
     String getName();
+
+    UserQuotaDto consumeQuota(UUID id);
+
+    List<UserQuotaDto> getUsersQuota();
 }

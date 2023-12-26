@@ -20,7 +20,9 @@ public class UserLoader implements CommandLineRunner {
 
     private final UserRepository userRepository;
 
-    public static Map<String, QuotaLimiter> counterMap = new HashMap<>();
+    public static final ReentrantLock reentrantLock = new ReentrantLock();
+
+    public static final Map<String, QuotaLimiter> counterMap = new HashMap<>();
 
     @Override
     public void run(String... args) throws Exception {

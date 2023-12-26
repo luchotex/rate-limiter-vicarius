@@ -1,9 +1,12 @@
 package com.vicarius.ratelimiter.service;
 
 import com.vicarius.ratelimiter.dto.UserDto;
+import com.vicarius.ratelimiter.dto.UserQuotaDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 @Slf4j
 @Service
@@ -40,5 +43,17 @@ public class UserElasticServiceImpl implements UserService {
     @Override
     public String getName() {
         return NAME;
+    }
+
+    @Override
+    public UserQuotaDto consumeQuota(UUID id) {
+        log.info("getting into consume quota");
+        return null;
+    }
+
+    @Override
+    public List<UserQuotaDto> getUsersQuota() {
+        log.info("getting into get users quota");
+        return new ArrayList<>();
     }
 }

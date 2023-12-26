@@ -1,6 +1,7 @@
 package com.vicarius.ratelimiter.service;
 
 import com.vicarius.ratelimiter.dto.UserDto;
+import com.vicarius.ratelimiter.dto.UserQuotaDto;
 import com.vicarius.ratelimiter.exception.UserNotFoundException;
 import com.vicarius.ratelimiter.mapper.UserMapper;
 import com.vicarius.ratelimiter.model.User;
@@ -11,7 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
 
@@ -71,4 +74,53 @@ public class UserMysqlServiceImpl implements UserService {
     public String getName() {
         return NAME;
     }
+
+    @Override
+    public UserQuotaDto consumeQuota(UUID id) {
+
+        QuotaLimiter quotaLimiter = UserLoader.counterMap.get(id.toString());
+        if (quotaLimiter == null) {
+            throw new UserNotFoundException("Can't find user");
+        }
+        ReentrantLock reentrantLock = quotaLimiter.getReentrantLock();
+        UserQuotaDto userQuotaDto;
+
+        try {
+            reentrantLock.lock();
+            User user = userRepository.findByIdAndDisabled(id, false).orElseThrow();
+            user.setLastLoginUtc(LocalDateTime.now(ZoneOffset.UTC));
+            userRepository.save(user);
+            userQuotaDto = userMapper.toUserQuotaDto(user);
+            userQuotaDto.setQuotaNumber(quotaLimiter.getQuotaNumber());
+
+        } finally {
+            reentrantLock.unlock();
+        }
+        return userQuotaDto;
+    }
+
+    @Override
+    public List<UserQuotaDto> getUsersQuota() {
+        ReentrantLock reentrantLock = UserLoader.reentrantLock;
+        List<UserQuotaDto> userQuotaDtoList = new ArrayList<>();
+
+        try {
+            reentrantLock.lock();
+            Set<Map.Entry<String, QuotaLimiter>> entries = UserLoader.counterMap.entrySet();
+            for (Map.Entry<String, QuotaLimiter> entry: entries) {
+                String userId = entry.getKey();
+                QuotaLimiter quotaLimiter = entry.getValue();
+                User user = userRepository.findByIdAndDisabled(UUID.fromString(userId), false).orElseThrow();
+                UserQuotaDto userQuotaDto = userMapper.toUserQuotaDto(user);
+                userQuotaDto.setQuotaNumber(quotaLimiter.getQuotaNumber());
+                userQuotaDtoList.add(userQuotaDto);
+            }
+
+        } finally {
+            reentrantLock.unlock();
+        }
+        return userQuotaDtoList;
+    }
+
+
 }

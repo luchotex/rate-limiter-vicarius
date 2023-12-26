@@ -1,11 +1,15 @@
 package com.vicarius.ratelimiter.dto;
 
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.UUID;
 
+@AllArgsConstructor
+@SuperBuilder
+@Data
+@NoArgsConstructor
 public class UserDto {
     @Getter
     @Setter
