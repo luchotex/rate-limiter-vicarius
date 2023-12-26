@@ -2,8 +2,11 @@ package com.vicarius.ratelimiter.controller;
 
 import com.vicarius.ratelimiter.exception.RequestLimitExceedException;
 import com.vicarius.ratelimiter.service.UserLoader;
+import com.vicarius.ratelimiter.service.limiter.FreedApi;
 import com.vicarius.ratelimiter.service.limiter.QuotaLimiter;
+import com.vicarius.ratelimiter.service.limiter.VicariusProperties;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerMapping;
@@ -20,6 +23,9 @@ import java.util.concurrent.locks.ReentrantLock;
 @Slf4j
 public class BlockingFilter extends OncePerRequestFilter {
 
+    @Autowired
+    private VicariusProperties vicariusProperties;
+
     private static final String UUID_REGEX = "[0-9a-fA-F]{8}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{4}\\b-[0-9a-fA-F]{12}";
 
     @Override
@@ -28,23 +34,36 @@ public class BlockingFilter extends OncePerRequestFilter {
         String url = request.getRequestURI();
         log.info("Inside Once Per Request Filter originated by request {}", url);
         String userId = retrieveUserId(request, url);
+        String method = request.getMethod();
 
 
         QuotaLimiter quotaLimiter = UserLoader.counterMap.get(userId);
 
-        ReentrantLock reentrantLock = quotaLimiter.getReentrantLock();
+        boolean containsFreedApi = false;
 
-        try {
-            reentrantLock.lock();
-            Integer currentQuotaNumber = quotaLimiter.getQuotaNumber();
-            if (currentQuotaNumber > 0) {
-                currentQuotaNumber--;
-                quotaLimiter.setQuotaNumber(currentQuotaNumber);
-            } else {
-                throw new RequestLimitExceedException("the user can't access API's anymore");
+        for (FreedApi freedApi : vicariusProperties.getFreedApi()) {
+            if (url.contains(freedApi.getUrl()) && method.contains(freedApi.getMethod())) {
+                containsFreedApi = true;
+                break;
             }
-        } finally {
-            reentrantLock.unlock();
+        }
+
+        if (!containsFreedApi && quotaLimiter != null) {
+            ReentrantLock reentrantLock = quotaLimiter.getReentrantLock();
+
+            try {
+                reentrantLock.lock();
+                Integer currentQuotaNumber = quotaLimiter.getQuotaNumber();
+                if (currentQuotaNumber > 0) {
+                    currentQuotaNumber--;
+
+                    quotaLimiter.setQuotaNumber(currentQuotaNumber);
+                } else {
+                    throw new RequestLimitExceedException("the user can't access API's anymore");
+                }
+            } finally {
+                reentrantLock.unlock();
+            }
         }
 
         filterChain.doFilter(request, response);

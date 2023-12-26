@@ -5,11 +5,13 @@ import com.vicarius.ratelimiter.exception.UserNotException;
 import com.vicarius.ratelimiter.mapper.UserMapper;
 import com.vicarius.ratelimiter.model.User;
 import com.vicarius.ratelimiter.repository.UserRepository;
+import com.vicarius.ratelimiter.service.limiter.QuotaLimiter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 @RequiredArgsConstructor
@@ -18,7 +20,7 @@ public class UserMysqlServiceImpl implements UserService {
 
     @Value("${vicarius.max-quota}")
     private Integer maxQuota;
-    public static final String NAME ="UserMysqlServiceImpl";
+    public static final String NAME = "UserMysqlServiceImpl";
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -34,6 +36,8 @@ public class UserMysqlServiceImpl implements UserService {
         User userToSave = userMapper.toUser(userDto);
         userToSave.setQuotaNumber(maxQuota);
         User userSaved = userRepository.save(userToSave);
+        UserLoader.counterMap.put(userSaved.getId().toString(),
+                QuotaLimiter.builder().quotaNumber(maxQuota).reentrantLock(new ReentrantLock()).build());
 
         return userMapper.toUserDto(userSaved);
     }
