@@ -1,7 +1,7 @@
 package com.vicarius.ratelimiter.service;
 
 import com.vicarius.ratelimiter.dto.UserDto;
-import com.vicarius.ratelimiter.exception.UserException;
+import com.vicarius.ratelimiter.exception.UserNotException;
 import com.vicarius.ratelimiter.mapper.UserMapper;
 import com.vicarius.ratelimiter.model.User;
 import com.vicarius.ratelimiter.repository.UserRepository;
@@ -25,7 +25,7 @@ public class UserMysqlServiceImpl implements UserService {
 
     @Override
     public UserDto getById(UUID id) {
-        User user = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserException("User not found"));
+        User user = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserNotException("User not found"));
         return userMapper.toUserDto(user);
     }
 
@@ -40,7 +40,7 @@ public class UserMysqlServiceImpl implements UserService {
 
     @Override
     public UserDto update(UUID id, UserDto userDto) {
-        User userToUpdate = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserException("User not found"));
+        User userToUpdate = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserNotException("User not found"));
         userToUpdate = userMapper.toUser(userDto);
         userRepository.save(userToUpdate);
 
@@ -49,7 +49,7 @@ public class UserMysqlServiceImpl implements UserService {
 
     @Override
     public UserDto delete(UUID id) {
-        User userToDelete = userRepository.findById(id).orElseThrow(() -> new UserException("User not Found"));
+        User userToDelete = userRepository.findById(id).orElseThrow(() -> new UserNotException("User not Found"));
         userToDelete.setDisabled(true);
         userRepository.save(userToDelete);
 
