@@ -31,4 +31,8 @@ public class User {
     @Getter
     @Setter
     private boolean disabled = Boolean.FALSE;
+
+    @Getter
+    @Setter
+    private Integer quotaNumber;
 }

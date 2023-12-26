@@ -6,6 +6,7 @@ import com.vicarius.ratelimiter.mapper.UserMapper;
 import com.vicarius.ratelimiter.model.User;
 import com.vicarius.ratelimiter.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -14,6 +15,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Service
 public class UserMysqlServiceImpl implements UserService {
+
+    @Value("vicarius.max-quota")
+    private Integer maxQuota;
     public static final String NAME ="UserMysqlServiceImpl";
 
     private final UserRepository userRepository;
@@ -28,6 +32,7 @@ public class UserMysqlServiceImpl implements UserService {
     @Override
     public UserDto save(UserDto userDto) {
         User userToSave = userMapper.toUser(userDto);
+        userToSave.setQuotaNumber(maxQuota);
         User userSaved = userRepository.save(userToSave);
 
         return userMapper.toUserDto(userSaved);
