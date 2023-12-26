@@ -1,4 +1,4 @@
-package com.vicarius.ratelimiter.service.limiter;
+package com.vicarius.ratelimiter.controller;
 
 import lombok.Getter;
 import lombok.Setter;

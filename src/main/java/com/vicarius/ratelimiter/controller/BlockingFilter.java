@@ -1,12 +1,10 @@
 package com.vicarius.ratelimiter.controller;
 
-import com.vicarius.ratelimiter.exception.RequestLimitExceedException;
 import com.vicarius.ratelimiter.service.UserLoader;
-import com.vicarius.ratelimiter.service.limiter.FreedApi;
 import com.vicarius.ratelimiter.service.limiter.QuotaLimiter;
-import com.vicarius.ratelimiter.service.limiter.VicariusProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerMapping;
@@ -33,7 +31,7 @@ public class BlockingFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String url = request.getRequestURI();
         log.info("Inside Once Per Request Filter originated by request {}", url);
-        String userId = retrieveUserId(request, url);
+        String userId = retrieveUserId(url);
         String method = request.getMethod();
 
 
@@ -53,24 +51,27 @@ public class BlockingFilter extends OncePerRequestFilter {
 
             try {
                 reentrantLock.lock();
-                Integer currentQuotaNumber = quotaLimiter.getQuotaNumber();
-                if (currentQuotaNumber > 0) {
-                    currentQuotaNumber--;
+                Integer quotaNumber = quotaLimiter.getQuotaNumber();
+                if (quotaNumber > 0) {
+                    quotaNumber--;
+                    log.info("UserId {} has {} remaining quota", userId, quotaNumber);
 
-                    quotaLimiter.setQuotaNumber(currentQuotaNumber);
+                    quotaLimiter.setQuotaNumber(quotaNumber);
+
+                    filterChain.doFilter(request, response);
                 } else {
-                    throw new RequestLimitExceedException("the user can't access API's anymore");
+                    log.info("Reached limit on userId {}", userId);
+                    response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
                 }
             } finally {
                 reentrantLock.unlock();
             }
+        } else {
+            filterChain.doFilter(request, response);
         }
-
-        filterChain.doFilter(request, response);
     }
 
-    private static String retrieveUserId(HttpServletRequest request, String url) {
-        Map pathVariables = (Map) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
+    private static String retrieveUserId(String url) {
         String[] split = url.split("/");
 
         String userId = "";

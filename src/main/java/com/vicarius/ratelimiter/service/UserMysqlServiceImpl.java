@@ -1,12 +1,13 @@
 package com.vicarius.ratelimiter.service;
 
 import com.vicarius.ratelimiter.dto.UserDto;
-import com.vicarius.ratelimiter.exception.UserNotException;
+import com.vicarius.ratelimiter.exception.UserNotFoundException;
 import com.vicarius.ratelimiter.mapper.UserMapper;
 import com.vicarius.ratelimiter.model.User;
 import com.vicarius.ratelimiter.repository.UserRepository;
 import com.vicarius.ratelimiter.service.limiter.QuotaLimiter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class UserMysqlServiceImpl implements UserService {
 
     @Value("${vicarius.max-quota}")
@@ -27,7 +29,8 @@ public class UserMysqlServiceImpl implements UserService {
 
     @Override
     public UserDto getById(UUID id) {
-        User user = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserNotException("User not found"));
+        User user = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserNotFoundException("User not found"));
+        log.info("Retrieved userId {}", id.toString());
         return userMapper.toUserDto(user);
     }
 
@@ -36,6 +39,7 @@ public class UserMysqlServiceImpl implements UserService {
         User userToSave = userMapper.toUser(userDto);
         userToSave.setQuotaNumber(maxQuota);
         User userSaved = userRepository.save(userToSave);
+        log.info("Saved userId {} with quota number {}", userSaved.getId(), userSaved.getQuotaNumber());
         UserLoader.counterMap.put(userSaved.getId().toString(),
                 QuotaLimiter.builder().quotaNumber(maxQuota).reentrantLock(new ReentrantLock()).build());
 
@@ -44,18 +48,22 @@ public class UserMysqlServiceImpl implements UserService {
 
     @Override
     public UserDto update(UUID id, UserDto userDto) {
-        User userToUpdate = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserNotException("User not found"));
+        User userToUpdate = userRepository.findByIdAndDisabled(id, false).orElseThrow(() -> new UserNotFoundException("User not found"));
         userToUpdate = userMapper.toUser(userDto);
-        userRepository.save(userToUpdate);
+        User userUpdated = userRepository.save(userToUpdate);
+
+        log.info("Updated userId {} with quota number {}", userUpdated.getId(), userUpdated.getQuotaNumber());
 
         return userMapper.toUserDto(userToUpdate);
     }
 
     @Override
     public UserDto delete(UUID id) {
-        User userToDelete = userRepository.findById(id).orElseThrow(() -> new UserNotException("User not Found"));
+        User userToDelete = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("User not Found"));
         userToDelete.setDisabled(true);
         userRepository.save(userToDelete);
+
+        log.info("Deleted userId {}", userToDelete.getId());
 
         return userMapper.toUserDto(userToDelete);
     }
