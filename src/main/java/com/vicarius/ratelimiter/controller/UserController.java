@@ -33,7 +33,7 @@ public class UserController {
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
-    @PostMapping(path = "/")
+    @PostMapping()
     public ResponseEntity<UserDto> save(@RequestBody UserDto user) {
         final UserDto userDto = customMapDynamicAutowireService.save(user);
         return new ResponseEntity<>(userDto, HttpStatus.OK);

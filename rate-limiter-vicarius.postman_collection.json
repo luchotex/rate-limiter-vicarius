@@ -1,0 +1,149 @@
+{
+	"info": {
+		"_postman_id": "db3e005d-52a7-46a3-9f50-f990734e7c21",
+		"name": "rate-limiter-vicarius",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3710892"
+	},
+	"item": [
+		{
+			"name": "Get user by Id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/user/4152ec46-9da4-4ee0-a2c5-25cf9e319f4f",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"4152ec46-9da4-4ee0-a2c5-25cf9e319f4f"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Consume quota",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/user/b43a3a30-61f6-4371-8a6a-928b0ef0d112/quota",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"b43a3a30-61f6-4371-8a6a-928b0ef0d112",
+						"quota"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user quotas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/user/quotas",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"quotas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user by Id Copy",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/user/a4e8c7de-c40f-451a-975a-5718c4950c7c",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"a4e8c7de-c40f-451a-975a-5718c4950c7c"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Save user",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"firstName\": \"Luis Mario\",\n    \"lastName\": \"Kupferberg Arellano\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/user/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update user",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"id\": \"ffa368ea-71ad-433b-bcc3-3c25df1813a6\",\n    \"firstName\": \"Luis\",\n    \"lastName\": \"Kupferbergeee\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/user/ffa368ea-71ad-433b-bcc3-3c25df1813a6",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"user",
+						"ffa368ea-71ad-433b-bcc3-3c25df1813a6"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

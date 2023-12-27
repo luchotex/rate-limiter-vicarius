@@ -1,6 +1,9 @@
 package com.vicarius.ratelimiter.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.Type;
@@ -13,7 +16,10 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-public class User {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class User implements Cloneable {
     @Getter
     @Setter
     @Id
@@ -38,4 +44,10 @@ public class User {
     @Getter
     @Setter
     private Integer quotaNumber;
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
 }
