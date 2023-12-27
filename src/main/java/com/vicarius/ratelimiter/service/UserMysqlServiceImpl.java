@@ -78,8 +78,20 @@ public class UserMysqlServiceImpl implements UserService {
         userRepository.save(userToDelete);
 
         log.info("Deleted userId {}", userToDelete.getId());
+        deleteQuotaLimiter(id);
 
         return userMapper.toUserDto(userToDelete);
+    }
+
+    public static void deleteQuotaLimiter(UUID id) {
+        QuotaLimiter quotaLimiter = UserLoader.counterMap.get(id.toString());
+        ReentrantLock reentrantLock = quotaLimiter.getReentrantLock();
+        try {
+            reentrantLock.lock();
+            UserLoader.counterMap.remove(id.toString());
+        } finally {
+            reentrantLock.unlock();
+        }
     }
 
     @Override
